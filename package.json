@@ -1,0 +1,46 @@
+{
+	"name": "miko-modules",
+	"version": "0.0.1",
+	"description": "",
+	"author": {
+		"name": "floemia"
+	},
+	"keywords": [
+		"typescript",
+		"osu-droid"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/floemia/miko-modules.git"
+	  },
+	"license": "MIT",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs"
+		}
+	},
+	"files": [
+		"dist/**/*",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsup",
+		"test": "tsup && node ./dist/test.js"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.10",
+		"tsup": "^8.4.0",
+		"typescript": "^5.8.2"
+	},
+	"dependencies": {
+		"@rian8337/osu-base": "^4.0.0-beta.51",
+		"@rian8337/osu-difficulty-calculator": "^4.0.0-beta.51",
+		"dotenv": "^16.4.7",
+		"osu-droid-scraping": "^1.1.5"
+	}
+}
