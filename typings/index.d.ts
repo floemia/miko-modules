@@ -72,6 +72,7 @@ interface DroidScoreExtended {
 	filename: string;
 	score: number;
 	combo: number;
+	rank: string;
 	played_date: Date;
 	accuracy: number;
 	hash: string;

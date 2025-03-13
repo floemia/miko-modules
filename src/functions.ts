@@ -55,6 +55,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 			filename: new_scores[i].Filename,
 			score: new_scores[i].MapScore,
 			combo: new_scores[i].MapCombo,
+			rank: new_scores[i].MapRank,
 			accuracy: new_scores[i].MapAccuracy,
 			hash: score.hash,
 			played_date: new Date(new_scores[i].PlayedDate),
