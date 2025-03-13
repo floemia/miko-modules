@@ -1,8 +1,8 @@
 import { miko } from "./functions";
-import type { DroidScoresParameters, NewDroidRequestParameters } from "../typings";
+import type { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidRequestParameters } from "../typings";
 
 export { miko }
-export type { DroidScoresParameters, NewDroidRequestParameters }
+export type { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidRequestParameters }
 
 
 export default {

@@ -1,5 +1,5 @@
 import {DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser } from "../typings";
-import { MapInfo, Accuracy, ModUtil } from "@rian8337/osu-base";
+import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
 import {
 	DifficultyCalculationOptions,
 	DroidDifficultyCalculator,
@@ -10,7 +10,7 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import { droid } from "osu-droid-scraping";
 
-// OsuAPIRequestBuilder.setAPIKey(process.env.OSU_API_KEY!)
+OsuAPIRequestBuilder.setAPIKey(process.env.OSU_API_KEY!)
 
 export const request_newdroid = async (params: NewDroidRequestParameters): Promise<NewDroidResponse> => {
 	const base_url = `https://new.osudroid.moe/apitest`
