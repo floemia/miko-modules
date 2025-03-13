@@ -12,7 +12,7 @@ import { droid } from "osu-droid-scraping";
 
 OsuAPIRequestBuilder.setAPIKey(process.env.OSU_API_KEY!)
 
-export const request_newdroid = async (params: NewDroidRequestParameters): Promise<NewDroidResponse> => {
+export const request = async (params: NewDroidRequestParameters): Promise<NewDroidResponse> => {
 	const base_url = `https://new.osudroid.moe/apitest`
 	const endpoint = params.uid ? `/profile-uid/${params.uid}` : `/profile-username/${params.username}`
 	const response = await fetch(base_url + endpoint)
@@ -21,7 +21,7 @@ export const request_newdroid = async (params: NewDroidRequestParameters): Promi
 
 export const scores = async (params: DroidScoresParameters): Promise<DroidScoreExtended[] | undefined> => {
 	if (!params.username && !params.uid) return undefined
-	const profile: NewDroidResponse = await miko.request_newdroid({ uid: params.uid, username: params.username })
+	const profile: NewDroidResponse = await miko.request({ uid: params.uid, username: params.username })
 	const scores = await droid.scores({ uid: profile.UserId, type: params.type })
 	if (!scores || !scores.length) return undefined
 
@@ -146,4 +146,4 @@ const calculate = async (score: DroidScoreExtended) => {
 	}
 }
 
-export const miko = { scores, request_newdroid, calculate }
+export const miko = { scores, request, calculate }
