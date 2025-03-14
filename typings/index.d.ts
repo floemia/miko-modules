@@ -51,6 +51,7 @@ interface NewDroidUser {
 	id: number;
 	username: string;
 	avatar_url: string;
+	color: string;
 	rank: {
 		global: number;
 		country: number;

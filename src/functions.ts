@@ -33,6 +33,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 		id: profile.UserId,
 		username: profile.Username,
 		avatar_url: scores[0].user.avatar_url,
+		color: (await getAverageColor(scores[0].user.avatar_url)).hex,
 		rank: {
 			global: profile.GlobalRank,
 			country: profile.CountryRank
@@ -101,7 +102,7 @@ const calculate = async (score: DroidScoreExtended) => {
 	} catch {
 		score.color = "#dedede"
 	}
-	
+
 	const mods = ModUtil.pcStringToMods(score.mods.acronyms.join());
 
 	const stats: DifficultyCalculationOptions = {
