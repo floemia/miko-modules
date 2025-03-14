@@ -79,7 +79,7 @@ interface DroidScoreExtended {
 	played_date: Date;
 	accuracy: number;
 	hash: string;
-	color: string | undefined;
+	color: string;
 	mods: DroidMods
 	count: HitStatistics;
 	stars: ScoreStars;

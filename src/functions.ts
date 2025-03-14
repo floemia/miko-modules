@@ -108,7 +108,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 			accuracy: new_scores[i].MapAccuracy,
 			played_date: new Date(new_scores[i].PlayedDate),
 			hash: score.hash,
-			color: undefined,
+			color: "#dedede",
 			mods: score.mods,
 			count: {
 				n300: new_scores[i].MapPerfect,
