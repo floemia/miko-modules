@@ -84,7 +84,7 @@ interface DroidScoreExtended {
 	count: HitStatistics;
 	stars: ScoreStars;
 	performance: DroidScoreCalculatedData;
-	user?: NewDroidUser;
+	user: NewDroidUser;
 	beatmap: MapInfo | undefined;
 }
 
