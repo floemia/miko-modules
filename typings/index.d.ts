@@ -50,6 +50,7 @@ interface HitStatistics {
 interface NewDroidUser {
 	id: number;
 	username: string;
+	avatar_url: string;
 	rank: {
 		global: number;
 		country: number;
@@ -76,6 +77,7 @@ interface DroidScoreExtended {
 	played_date: Date;
 	accuracy: number;
 	hash: string;
+	color: string | undefined;
 	mods: DroidMods
 	count: HitStatistics;
 	stars: ScoreStars;

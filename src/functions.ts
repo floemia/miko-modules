@@ -1,5 +1,6 @@
 import {DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser } from "../typings";
 import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
+import { getAverageColor } from "fast-average-color-node";
 import {
 	DifficultyCalculationOptions,
 	DroidDifficultyCalculator,
@@ -23,16 +24,15 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 	if (!params.username && !params.uid) return undefined
 	const profile: NewDroidResponse = await miko.request({ uid: params.uid, username: params.username })
 	const scores = await droid.scores({ uid: profile.UserId, type: params.type })
-	if (!scores || !scores.length) return undefined
-
+	if (!scores) return undefined
 	const array: DroidScoreExtended[] = []
+	if (!scores.length) return array
 	let i = 0
 	const new_scores = params.type === "top" ? profile.Top50Plays : profile.Last50Scores
-	new_scores.length = 3
-	scores.length = 3
 	const user: NewDroidUser = {
 		id: profile.UserId,
 		username: profile.Username,
+		avatar_url: scores[0].user.avatar_url,
 		rank: {
 			global: profile.GlobalRank,
 			country: profile.CountryRank
@@ -57,8 +57,9 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 			combo: new_scores[i].MapCombo,
 			rank: new_scores[i].MapRank,
 			accuracy: new_scores[i].MapAccuracy,
-			hash: score.hash,
 			played_date: new Date(new_scores[i].PlayedDate),
+			hash: score.hash,
+			color: undefined,
 			mods: score.mods,
 			count: {
 				n300: new_scores[i].MapPerfect,
@@ -93,6 +94,14 @@ const calculate = async (score: DroidScoreExtended) => {
 	const beatmapInfo = await MapInfo.getInformation(score.hash)
 	if (!beatmapInfo || score.beatmap) return
 	score.beatmap = beatmapInfo
+
+	try {
+		const color = await getAverageColor(`https://assets.ppy.sh/beatmaps/${beatmapInfo.beatmapSetId}/covers/card.jpg`)
+		score.color = color.hex
+	} catch {
+		score.color = "#dedede"
+	}
+	
 	const mods = ModUtil.pcStringToMods(score.mods.acronyms.join());
 
 	const stats: DifficultyCalculationOptions = {

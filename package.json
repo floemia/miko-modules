@@ -1,6 +1,6 @@
 {
 	"name": "miko-modules",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "",
 	"author": {
 		"name": "floemia"
@@ -12,7 +12,7 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/floemia/miko-modules.git"
-	  },
+	},
 	"license": "MIT",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -41,6 +41,7 @@
 		"@rian8337/osu-base": "^4.0.0-beta.51",
 		"@rian8337/osu-difficulty-calculator": "^4.0.0-beta.51",
 		"dotenv": "^16.4.7",
+		"fast-average-color-node": "^3.1.0",
 		"osu-droid-scraping": "^1.1.5"
 	}
 }
