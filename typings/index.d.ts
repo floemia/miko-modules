@@ -2,6 +2,7 @@ import { MapInfo } from "@rian8337/osu-base";
 import { DroidMods } from "osu-droid-scraping";
 
 interface NewDroidResponse {
+	error?: string;
 	UserId: number;
 	Username: string;
 	GlobalRank: number;
@@ -83,7 +84,7 @@ interface DroidScoreExtended {
 	count: HitStatistics;
 	stars: ScoreStars;
 	performance: DroidScoreCalculatedData;
-	user: NewDroidUser;
+	user?: NewDroidUser;
 	beatmap: MapInfo | undefined;
 }
 
@@ -102,16 +103,26 @@ interface DroidScoreCalculatedData {
 } 
 
 interface DroidScoresParameters {
-	uid? : number;
-	username? : string;
 	type: "top" | "recent";
+	uid? : number;
+	username?: string;
+	response?: NewDroidResponse
 }
 
 interface NewDroidRequestParameters {
 	uid?: number;
 	username?: string;
 }
+interface NewDroidUserParameters {
+	uid?: number;
+	username?: string;
+	response?: NewDroidResponse
+}
 
+interface DroidCardParameters {
+	user?: NewDroidUser;
+	uid?: number;
+	username?: string;
+}
 
-
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidRequestParameters }
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters }

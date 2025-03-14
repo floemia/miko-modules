@@ -1,4 +1,4 @@
-import {DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser } from "../typings";
+import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters } from "../typings";
 import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
@@ -20,15 +20,63 @@ export const request = async (params: NewDroidRequestParameters): Promise<NewDro
 	return await response.json()
 }
 
+export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser | undefined> => {
+	if (!params.username && !params.uid && !params.response) return undefined
+	let profile: NewDroidResponse
+	if (!params.response)
+		profile= await miko.request({ uid: params.uid, username: params.username })
+	else
+		profile = params.response
+	
+	if (profile.error) return undefined
+	let avatar_url: string
+
+	if ((await fetch(`https://osudroid.moe/user/avatar/${profile.UserId}.png`)).status != 404)
+		avatar_url = `https://osudroid.moe/user/avatar/${profile.UserId}.png`
+	else
+		avatar_url = `https://osudroid.moe/user/avatar/0.png`
+
+	const user: NewDroidUser = {
+		id: profile.UserId,
+		username: profile.Username,
+		avatar_url: avatar_url,
+		color: (await getAverageColor(avatar_url)).hex,
+		rank: {
+			global: profile.GlobalRank,
+			country: profile.CountryRank
+		},
+		total_score: profile.OverallScore,
+		dpp: profile.OverallPP,
+		playcount: profile.OverallPlaycount,
+		accuracy: profile.OverallAccuracy,
+		registered: new Date(profile.Registered),
+		last_login: new Date(profile.LastLogin),
+		region: profile.Region,
+		supporter: (profile.Supporter == 1),
+		core_developer: (profile.CoreDeveloper == 1),
+		developer: (profile.Developer == 1),
+		contributor: (profile.Contributor == 1),
+	}
+	return user
+}
+
 export const scores = async (params: DroidScoresParameters): Promise<DroidScoreExtended[] | undefined> => {
-	if (!params.username && !params.uid) return undefined
-	const profile: NewDroidResponse = await miko.request({ uid: params.uid, username: params.username })
+	if (!params.username && !params.uid && !params.response) return undefined
+	let profile: NewDroidResponse
+
+	if (!params.response)
+		profile = await miko.request({ uid: params.uid, username: params.username })
+	else
+		profile = params.response
+
+	if (profile.error) return undefined
 	const scores = await droid.scores({ uid: profile.UserId, type: params.type })
 	if (!scores) return undefined
+
 	const array: DroidScoreExtended[] = []
 	if (!scores.length) return array
 	let i = 0
-	const new_scores = params.type === "top" ? profile.Top50Plays : profile.Last50Scores
+	const new_scores = params.type == "top" ? profile.Top50Plays : profile.Last50Scores
 	const user: NewDroidUser = {
 		id: profile.UserId,
 		username: profile.Username,
@@ -127,7 +175,7 @@ const calculate = async (score: DroidScoreExtended) => {
 
 	score.stars.droid = droid_rating.total
 	score.stars.osu = osu_rating.total
-	
+
 	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
 	score.performance.pp = osu_performance.total
 
@@ -157,4 +205,14 @@ const calculate = async (score: DroidScoreExtended) => {
 	}
 }
 
-export const miko = { scores, request, calculate }
+// const card = async (params: DroidCardParameters) => {
+// 	if (!params.user && !params.uid && !params.username) return undefined
+// 	let profile: NewDroidUser
+// 	if (params.user) profile = params.user
+// 	if (params.uid || params.username) {
+
+// 	}
+// }
+
+
+export const miko = { user, scores, request, calculate }
