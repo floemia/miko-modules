@@ -186,7 +186,7 @@ const calculate = async (score: DroidScoreExtended) => {
 			score.performance.penalty = true
 			score.performance.dpp_no_penalty = droid_performance.total
 		}
-	}
+	} else score.performance.dpp = droid_performance.total
 
 	if (score.count.nMiss != 0 || score.combo < beatmapInfo.maxCombo! - 10) {
 		const accuracy_fc = new Accuracy({
