@@ -123,6 +123,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 				droid: null
 			},
 			performance: {
+				penalty: false,
 				pp: null,
 				dpp: new_scores[i].MapPP,
 				fc: {
@@ -178,10 +179,10 @@ const calculate = async (score: DroidScoreExtended) => {
 
 	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
 	score.performance.pp = osu_performance.total
-
-	if (!score.performance.dpp) {
-		const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
-		score.performance.dpp = droid_performance.total
+	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
+	if (score.performance.dpp) {
+		if (droid_performance.total - score.performance.dpp > 0.1)
+			score.performance.penalty = true
 	}
 
 	if (score.count.nMiss != 0 || score.combo < beatmapInfo.maxCombo!) {

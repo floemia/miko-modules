@@ -93,6 +93,7 @@ interface ScoreStars{
 	droid: number | null;
 }
 interface DroidScoreCalculatedData {
+	penalty: boolean
 	pp: number | null;
 	dpp: number | null;
 	fc: {
