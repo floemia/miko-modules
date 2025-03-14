@@ -96,6 +96,7 @@ interface DroidScoreCalculatedData {
 	penalty: boolean
 	pp: number | null;
 	dpp: number | null;
+	dpp_no_penalty: number | null
 	fc: {
 		pp: number | null;
 		dpp: number | null;

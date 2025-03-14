@@ -24,10 +24,10 @@ export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser
 	if (!params.username && !params.uid && !params.response) return undefined
 	let profile: NewDroidResponse
 	if (!params.response)
-		profile= await miko.request({ uid: params.uid, username: params.username })
+		profile = await miko.request({ uid: params.uid, username: params.username })
 	else
 		profile = params.response
-	
+
 	if (profile.error) return undefined
 	let avatar_url: string
 
@@ -126,6 +126,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 				penalty: false,
 				pp: null,
 				dpp: new_scores[i].MapPP,
+				dpp_no_penalty: null,
 				fc: {
 					pp: null,
 					dpp: null,
@@ -181,11 +182,13 @@ const calculate = async (score: DroidScoreExtended) => {
 	score.performance.pp = osu_performance.total
 	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
 	if (score.performance.dpp) {
-		if (droid_performance.total - score.performance.dpp > 0.1)
+		if (droid_performance.total - score.performance.dpp > 0.1) {
 			score.performance.penalty = true
+			score.performance.dpp_no_penalty = droid_performance.total
+		}
 	}
 
-	if (score.count.nMiss != 0 || score.combo < beatmapInfo.maxCombo!) {
+	if (score.count.nMiss != 0 || score.combo < beatmapInfo.maxCombo! - 10) {
 		const accuracy_fc = new Accuracy({
 			nmiss: 0,
 			n300: score.count.n300 + score.count.nMiss,
