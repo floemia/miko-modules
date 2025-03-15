@@ -127,4 +127,10 @@ interface DroidCardParameters {
 	username?: string;
 }
 
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters }
+interface DroidScoreListPaginationParameters {
+	scores: DroidScoreExtended[];
+	page: number;
+	scores_per_page: number;
+}
+
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters }

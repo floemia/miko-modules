@@ -1,4 +1,4 @@
-import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters } from "../typings";
+import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters } from "../typings";
 import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
@@ -209,6 +209,18 @@ const calculate = async (score: DroidScoreExtended) => {
 	}
 }
 
+const score_pagination = async (params: DroidScoreListPaginationParameters) : Promise<DroidScoreExtended[]> => {
+	if (!params.scores.length) return []
+	const start = 5 * params.page
+	const end = start + 5
+	for (let i = start; i < end; i++) {
+		if (i >= params.scores.length) break
+		await miko.calculate(params.scores[i])
+	}
+	return params.scores.slice(start, end)
+}
+
+
 // const card = async (params: DroidCardParameters) => {
 // 	if (!params.user && !params.uid && !params.username) return undefined
 // 	let profile: NewDroidUser
@@ -219,4 +231,4 @@ const calculate = async (score: DroidScoreExtended) => {
 // }
 
 
-export const miko = { user, scores, request, calculate }
+export const miko = { user, scores, request, calculate, score_pagination }
