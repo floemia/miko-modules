@@ -214,10 +214,6 @@ const score_pagination = async (params: DroidScoreListPaginationParameters) : Pr
 	if (!params.scores.length) return []
 	const start = 5 * params.page
 	const end = start + 5
-	for (let i = start; i < end; i++) {
-		if (i >= params.scores.length) break
-		await miko.calculate(params.scores[i])
-	}
 	return params.scores.slice(start, end)
 }
 
