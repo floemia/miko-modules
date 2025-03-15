@@ -142,8 +142,9 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 }
 
 const calculate = async (score: DroidScoreExtended) => {
+	if (score.beatmap) return
 	const beatmapInfo = await MapInfo.getInformation(score.hash)
-	if (!beatmapInfo || score.beatmap) return
+	if (!beatmapInfo) return
 	score.beatmap = beatmapInfo
 
 	try {
