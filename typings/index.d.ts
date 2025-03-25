@@ -157,6 +157,7 @@ interface DroidPerformanceCalculatorParameters {
 interface DroidCalculatedData {
 	performance: DroidScoreCalculatedData;
 	count: HitStatistics;
+	mods: DroidMods;
 	stars: ScoreStars;
 	accuracy: number;
 	rank: string;

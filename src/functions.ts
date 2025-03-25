@@ -288,8 +288,13 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
 	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
 
+	let mods_str = mods.map(mod => mod.acronym)
 	return {
 		accuracy: accuracy.value(),
+		mods: { 
+			acronyms: mods_str,
+			speed: details.mods.speed,
+		 },
 		rank: rank,
 		stars: {
 			osu: osu_rating.total,
@@ -299,7 +304,7 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			pp: osu_performance.total,
 			dpp: droid_performance.total,
 		},
-		count:{
+		count: {
 			n300: details.count.n300,
 			n100: details.count.n100,
 			n50: details.count.n50,
