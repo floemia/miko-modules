@@ -194,7 +194,6 @@ const calculate = async (score: DroidScoreExtended) => {
 
 	const droid_rating = new DroidDifficultyCalculator(beatmapInfo.beatmap).calculate(stats);
 	const osu_rating = new OsuDifficultyCalculator(beatmapInfo.beatmap).calculate(stats);
-
 	score.stars.droid = droid_rating.total
 	score.stars.osu = osu_rating.total
 
@@ -258,7 +257,7 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 		n50: acc ? undefined : details.count.n50,
 		nobjects: beatmap.objects,
 	});
-	
+
 	let n300 = accuracy.n300
 	let n100 = accuracy.n100
 	let n50 = accuracy.n50
@@ -298,10 +297,6 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			speed: details.mods.speed,
 		 },
 		rank: rank,
-		stars: {
-			osu: osu_rating.total,
-			droid: droid_rating.total,
-		},
 		performance: {
 			pp: osu_performance.total,
 			dpp: droid_performance.total,
@@ -313,6 +308,10 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			nMiss: nMiss,
 			nGeki: 0,
 			nKatu: 0,
+		},
+		rating : {
+			droid: droid_rating,
+			osu: osu_rating,
 		},
 		color: color_hex,
 	}

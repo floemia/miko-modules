@@ -1,4 +1,5 @@
 import { MapInfo } from "@rian8337/osu-base";
+import { DroidDifficultyCalculator, OsuDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
 import { DroidMods } from "osu-droid-scraping";
 
 interface NewDroidResponse {
@@ -158,10 +159,13 @@ interface DroidCalculatedData {
 	performance: DroidScoreCalculatedData;
 	count: HitStatistics;
 	mods: DroidMods;
-	stars: ScoreStars;
 	accuracy: number;
 	rank: string;
 	color: string;
+	rating : {
+		droid: DroidDifficultyCalculator,
+		osu: OsuDifficultyCalculator,
+	}
 }
 
 interface ScoreStars {
