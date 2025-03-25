@@ -1,4 +1,4 @@
-import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse } from "../typings";
+import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse, DroidPerformanceCalculatorParameters, DroidCalculatedData } from "../typings";
 import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
@@ -146,15 +146,8 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 				droid: null
 			},
 			performance: {
-				penalty: false,
 				pp: null,
 				dpp: new_scores[i].MapPP,
-				dpp_no_penalty: null,
-				fc: {
-					pp: null,
-					dpp: null,
-					accuracy: null
-				}
 			},
 			beatmap: undefined,
 			user: user
@@ -169,7 +162,6 @@ const calculate = async (score: DroidScoreExtended) => {
 	const beatmapInfo = await MapInfo.getInformation(score.hash)
 	if (!beatmapInfo) return
 	score.beatmap = beatmapInfo
-
 	try {
 		const color = await getAverageColor(`https://assets.ppy.sh/beatmaps/${beatmapInfo.beatmapSetId}/covers/card.jpg`)
 		score.color = color.hex
@@ -184,12 +176,16 @@ const calculate = async (score: DroidScoreExtended) => {
 		customSpeedMultiplier: score.mods.speed
 	}
 	const accuracy = new Accuracy({
+		percent: score.accuracy,
 		nmiss: score.count.nMiss,
 		n300: score.count.n300,
 		n100: score.count.n100,
 		n50: score.count.n50,
 		nobjects: beatmapInfo.objects,
 	});
+	if (score.accuracy) {
+
+	}
 	const perf_stats: PerformanceCalculationOptions = {
 		combo: score.combo,
 		accPercent: accuracy,
@@ -220,8 +216,11 @@ const calculate = async (score: DroidScoreExtended) => {
 			n50: score.count.n50,
 			nobjects: beatmapInfo.objects,
 		});
-
-		score.performance.fc.accuracy = accuracy_fc.value() * 100
+		score.performance.fc = {
+			accuracy: accuracy_fc.value() * 100,
+			pp: -1,
+			dpp: -1,
+		}
 		const perf_stats_fc: PerformanceCalculationOptions = {
 			accPercent: accuracy_fc,
 			miss: 0,
@@ -233,7 +232,86 @@ const calculate = async (score: DroidScoreExtended) => {
 	}
 }
 
-const score_pagination = async (params: DroidScoreListPaginationParameters) : Promise<DroidScoreExtended[]> => {
+const performance = async (details: DroidPerformanceCalculatorParameters): Promise<DroidCalculatedData> => {
+	let color_hex = "#dedede"
+	try {
+		const color = await getAverageColor(`https://assets.ppy.sh/beatmaps/${details.beatmap!.beatmapSetId}/covers/card.jpg`)
+		color_hex = color.hex
+	} catch {
+		color_hex = "#dedede"
+	}
+	let beatmap = details.beatmap!
+
+	const mods = ModUtil.pcStringToMods(details.mods.acronyms.join());
+
+	const stats: DifficultyCalculationOptions = {
+		mods: mods,
+		customSpeedMultiplier: details.mods.speed
+	}
+	const accuracy = new Accuracy({
+		percent: details.accuracy,
+		nmiss: details.count.nMiss,
+		n300: details.count.n300,
+		n100: details.count.n100,
+		n50: details.count.n50,
+		nobjects: beatmap.objects,
+	});
+	if (details.accuracy) {
+		details.count.n300 = accuracy.n300
+		details.count.n100 = accuracy.n300
+		details.count.n50 = accuracy.n300
+		details.count.nMiss = accuracy.nmiss
+	}
+	if (details.combo == -1) details.combo = beatmap.maxCombo!
+
+	let silver = /HD|FL/i.test(details.mods.acronyms.join())
+	let total = details.count.n300 + details.count.n100 + details.count.n50 + details.count.nMiss;
+
+	let r300 = details.count.n300 / total;
+	let r50 = details.count.n50 / total;
+	let rank: string;
+	if (r300 === 1) rank = silver ? 'XH' : 'X';
+	else if (r300 > 0.9 && r50 < 0.01 && details.count.nMiss === 0) rank = silver ? 'SH' : 'S';
+	else if ((r300 > 0.8 && details.count.nMiss === 0) || r300 > 0.9) rank = 'A';
+	else if ((r300 > 0.7 && details.count.nMiss === 0) || r300 > 0.8) rank = 'B';
+	else if (r300 > 0.6) rank = 'C';
+	else rank = 'D';
+
+	const perf_stats: PerformanceCalculationOptions = {
+		combo: details.combo,
+		accPercent: accuracy,
+		miss: details.count.nMiss,
+	}
+
+	const droid_rating = new DroidDifficultyCalculator(beatmap.beatmap!).calculate(stats);
+	const osu_rating = new OsuDifficultyCalculator(beatmap.beatmap!).calculate(stats);
+	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
+	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
+
+	return {
+		accuracy: accuracy.value(),
+		rank: rank,
+		stars: {
+			osu: osu_rating.total,
+			droid: droid_rating.total,
+		},
+		performance: {
+			pp: osu_performance.total,
+			dpp: droid_performance.total,
+		},
+		count:{
+			n300: details.count.n300,
+			n100: details.count.n100,
+			n50: details.count.n50,
+			nMiss: details.count.nMiss,
+			nGeki: 0,
+			nKatu: 0,
+		},
+		color: color_hex,
+	}
+}
+
+const score_pagination = async (params: DroidScoreListPaginationParameters): Promise<DroidScoreExtended[]> => {
 	if (!params.scores.length) return []
 	const start = 5 * params.page
 	const end = start + 5
@@ -253,4 +331,4 @@ const score_pagination = async (params: DroidScoreListPaginationParameters) : Pr
 // }
 
 
-export const miko = { user, scores, request, calculate, score_pagination, rx_scores_request, rx_user_request }
+export const miko = { user, scores, request, calculate, score_pagination, rx_scores_request, rx_user_request, performance }

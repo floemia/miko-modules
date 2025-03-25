@@ -143,7 +143,24 @@ interface DroidScoreExtended {
 	stars: ScoreStars;
 	performance: DroidScoreCalculatedData;
 	user?: NewDroidUser;
-	beatmap: MapInfo | undefined;
+	beatmap?: MapInfo;
+}
+
+interface DroidPerformanceCalculatorParameters {
+	combo?: number;
+	accuracy?: number;
+	mods: DroidMods;
+	count: HitStatistics;
+	beatmap: MapInfo
+}
+
+interface DroidCalculatedData {
+	performance: DroidScoreCalculatedData;
+	count: HitStatistics;
+	stars: ScoreStars;
+	accuracy: number;
+	rank: string;
+	color: string;
 }
 
 interface ScoreStars {
@@ -151,14 +168,14 @@ interface ScoreStars {
 	droid: number | null;
 }
 interface DroidScoreCalculatedData {
-	penalty: boolean
+	penalty?: boolean
 	pp: number | null;
 	dpp: number | null;
-	dpp_no_penalty: number | null
-	fc: {
-		pp: number | null;
-		dpp: number | null;
-		accuracy: number | null;
+	dpp_no_penalty?: number
+	fc?: {
+		pp: number;
+		dpp: number;
+		accuracy: number;
 	}
 }
 
@@ -200,4 +217,4 @@ interface DroidScoreListPaginationParameters {
 	scores_per_page: number;
 }
 
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters }
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData }
