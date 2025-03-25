@@ -1,4 +1,4 @@
-import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters } from "../typings";
+import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse } from "../typings";
 import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
@@ -18,6 +18,29 @@ export const request = async (params: NewDroidRequestParameters): Promise<NewDro
 	const endpoint = params.uid ? `/profile-uid/${params.uid}` : `/profile-username/${params.username}`
 	const response = await fetch(base_url + endpoint)
 	return await response.json()
+}
+
+export const rx_user_request = async (params: DroidRXUserParameters): Promise<DroidRXUserResponse | undefined> => {
+	const base_url = `https://v4rx.me/api/`
+	const endpoint = `get_user/?id=${params.uid}`
+	const response = await fetch(base_url + endpoint)
+	if (!response.ok) return undefined
+	if (response.status == 200)
+		return await response.json()
+	else
+		return undefined
+}
+
+export const rx_scores_request = async (params: DroidRXScoreParameters): Promise<DroidRXScoreResponse[] | undefined> => {
+	if (!params.limit) params.limit = 50
+	const base_url = `https://v4rx.me/api/`
+	const endpoint = `get_scores/?id=${params.uid}&?limit=${params.limit}`
+	const response = await fetch(base_url + endpoint)
+	if (!response.ok) return undefined
+	if (response.status == 200)
+		return await response.json()
+	else
+		return undefined
 }
 
 export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser | undefined> => {
@@ -218,6 +241,8 @@ const score_pagination = async (params: DroidScoreListPaginationParameters) : Pr
 }
 
 
+
+
 // const card = async (params: DroidCardParameters) => {
 // 	if (!params.user && !params.uid && !params.username) return undefined
 // 	let profile: NewDroidUser
@@ -228,4 +253,4 @@ const score_pagination = async (params: DroidScoreListPaginationParameters) : Pr
 // }
 
 
-export const miko = { user, scores, request, calculate, score_pagination }
+export const miko = { user, scores, request, calculate, score_pagination, rx_scores_request, rx_user_request }

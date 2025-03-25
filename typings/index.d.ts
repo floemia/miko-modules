@@ -11,8 +11,8 @@ interface NewDroidResponse {
 	OverallPP: number;
 	OverallPlaycount: number;
 	OverallAccuracy: number;
-	Registered: string; 
-	LastLogin: string; 
+	Registered: string;
+	LastLogin: string;
 	Region: string;
 	Supporter: number;
 	CoreDeveloper: number;
@@ -20,7 +20,65 @@ interface NewDroidResponse {
 	Contributor: number;
 	Top50Plays: NewDroidResponseScore[];
 	Last50Scores: NewDroidResponseScore[];
-  }
+}
+
+interface DroidRXScoreResponse {
+	error?: string;
+	acc: number;
+	beatmap: {
+		ar: number;
+		artist: string;
+		bpm: number;
+		creator: string;
+		cs: number;
+		hp: number;
+		id: number;
+		last_update: number;
+		max_combo: number;
+		md5: string;
+		mode: number;
+		od: number;
+		set_id: number;
+		star: number;
+		status: number;
+		title: string;
+		total_length: number;
+		version: string;
+	};
+	combo: number;
+	date: number;
+	hit100: number;
+	hit300: number;
+	hit50: number;
+	hitgeki: number;
+	hitkatsu: number;
+	hitmiss: number;
+	id: number;
+	maphash: string;
+	mods: string;
+	pp: number;
+	rank: string;
+	score: number;
+	status: number;
+}
+
+interface DroidRXUserResponse {
+	error?: string;
+	id: number;
+	name: string;
+	online: boolean;
+	prefix: string | null;
+	stats: {
+		accuracy: number;
+		id: number;
+		is_playing: boolean | null;
+		plays: number;
+		pp: number;
+		rank: number;
+		ranked_score: number;
+		total_score: number;
+	};
+}
 interface NewDroidResponseScore {
 	ScoreId: number;
 	Filename: string;
@@ -37,7 +95,7 @@ interface NewDroidResponseScore {
 	MapAccuracy: number;
 	MapPP: number;
 	PlayedDate: string;
-  }
+}
 
 interface HitStatistics {
 	nGeki: number,
@@ -84,11 +142,11 @@ interface DroidScoreExtended {
 	count: HitStatistics;
 	stars: ScoreStars;
 	performance: DroidScoreCalculatedData;
-	user: NewDroidUser;
+	user?: NewDroidUser;
 	beatmap: MapInfo | undefined;
 }
 
-interface ScoreStars{
+interface ScoreStars {
 	osu: number | null;
 	droid: number | null;
 }
@@ -102,11 +160,11 @@ interface DroidScoreCalculatedData {
 		dpp: number | null;
 		accuracy: number | null;
 	}
-} 
+}
 
 interface DroidScoresParameters {
 	type: "top" | "recent";
-	uid? : number;
+	uid?: number;
 	username?: string;
 	response?: NewDroidResponse
 }
@@ -121,6 +179,15 @@ interface NewDroidUserParameters {
 	response?: NewDroidResponse
 }
 
+interface DroidRXUserParameters {
+	uid: number;
+}
+
+interface DroidRXScoreParameters {
+	uid: number;
+	limit?: number;
+}
+
 interface DroidCardParameters {
 	user?: NewDroidUser;
 	uid?: number;
@@ -133,4 +200,4 @@ interface DroidScoreListPaginationParameters {
 	scores_per_page: number;
 }
 
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters }
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters }
