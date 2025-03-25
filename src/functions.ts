@@ -248,32 +248,34 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 		mods: mods,
 		customSpeedMultiplier: details.mods.speed
 	}
+	let acc = details.accuracy
+
 	const accuracy = new Accuracy({
-		percent: details.accuracy,
+		percent: acc,
 		nmiss: details.count.nMiss,
-		n300: details.count.n300,
-		n100: details.count.n100,
-		n50: details.count.n50,
+		n300: acc ? undefined : details.count.n300,
+		n100: acc ? undefined : details.count.n100,
+		n50: acc ? undefined : details.count.n50,
 		nobjects: beatmap.objects,
 	});
-	if (details.accuracy) {
-		details.count.n300 = accuracy.n300
-		details.count.n100 = accuracy.n100
-		details.count.n50 = accuracy.n50
-		details.count.nMiss = accuracy.nmiss
-	}
+	
+	let n300 = accuracy.n300
+	let n100 = accuracy.n100
+	let n50 = accuracy.n50
+	let nMiss = accuracy.nmiss
+
 	if (details.combo == -1) details.combo = beatmap.maxCombo!
 
 	let silver = /HD|FL/i.test(details.mods.acronyms.join())
-	let total = details.count.n300 + details.count.n100 + details.count.n50 + details.count.nMiss;
+	let total = n300 + n100 + n50 + nMiss;
 
-	let r300 = details.count.n300 / total;
-	let r50 = details.count.n50 / total;
+	let r300 = n300 / total;
+	let r50 = n50 / total;
 	let rank: string;
 	if (r300 === 1) rank = silver ? 'XH' : 'X';
-	else if (r300 > 0.9 && r50 < 0.01 && details.count.nMiss === 0) rank = silver ? 'SH' : 'S';
-	else if ((r300 > 0.8 && details.count.nMiss === 0) || r300 > 0.9) rank = 'A';
-	else if ((r300 > 0.7 && details.count.nMiss === 0) || r300 > 0.8) rank = 'B';
+	else if (r300 > 0.9 && r50 < 0.01 && nMiss === 0) rank = silver ? 'SH' : 'S';
+	else if ((r300 > 0.8 && nMiss === 0) || r300 > 0.9) rank = 'A';
+	else if ((r300 > 0.7 && nMiss === 0) || r300 > 0.8) rank = 'B';
 	else if (r300 > 0.6) rank = 'C';
 	else rank = 'D';
 
@@ -305,10 +307,10 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			dpp: droid_performance.total,
 		},
 		count: {
-			n300: details.count.n300,
-			n100: details.count.n100,
-			n50: details.count.n50,
-			nMiss: details.count.nMiss,
+			n300: n300,
+			n100: n100,
+			n50: n50,
+			nMiss: nMiss,
 			nGeki: 0,
 			nKatu: 0,
 		},
