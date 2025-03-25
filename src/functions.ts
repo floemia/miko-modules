@@ -258,8 +258,8 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 	});
 	if (details.accuracy) {
 		details.count.n300 = accuracy.n300
-		details.count.n100 = accuracy.n300
-		details.count.n50 = accuracy.n300
+		details.count.n100 = accuracy.n100
+		details.count.n50 = accuracy.n50
 		details.count.nMiss = accuracy.nmiss
 	}
 	if (details.combo == -1) details.combo = beatmap.maxCombo!
