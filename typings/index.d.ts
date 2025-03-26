@@ -160,6 +160,7 @@ interface DroidCalculatedData {
 	count: HitStatistics;
 	mods: DroidMods;
 	accuracy: number;
+	combo: number
 	rank: string;
 	color: string;
 	rating : {

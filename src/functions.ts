@@ -1,5 +1,5 @@
 import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse, DroidPerformanceCalculatorParameters, DroidCalculatedData } from "../typings";
-import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder } from "@rian8337/osu-base";
+import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder, } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
 	DifficultyCalculationOptions,
@@ -297,6 +297,7 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			speed: details.mods.speed,
 		 },
 		rank: rank,
+		combo: details.combo || beatmap.maxCombo!,
 		performance: {
 			pp: osu_performance.total,
 			dpp: droid_performance.total,
