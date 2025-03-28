@@ -3,7 +3,6 @@ import { DroidDifficultyCalculator, OsuDifficultyCalculator } from "@rian8337/os
 import { DroidMods } from "osu-droid-scraping";
 
 interface NewDroidResponse {
-	error?: string;
 	UserId: number;
 	Username: string;
 	GlobalRank: number;

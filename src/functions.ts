@@ -13,47 +13,81 @@ import { droid } from "osu-droid-scraping";
 
 OsuAPIRequestBuilder.setAPIKey(process.env.OSU_API_KEY!)
 
-export const request = async (params: NewDroidRequestParameters): Promise<NewDroidResponse> => {
+export const request = async (params: NewDroidRequestParameters): Promise<NewDroidResponse | { error: string }> => {
 	const base_url = `https://new.osudroid.moe/apitest`
 	const endpoint = params.uid ? `/profile-uid/${params.uid}` : `/profile-username/${params.username}`
-	const response = await fetch(base_url + endpoint)
-	return await response.json()
+	try {
+		const response = await fetch(base_url + endpoint)
+
+		if (!response.ok) return { error: "Request failed." }
+		try {
+			let data = await response.json()
+			return data
+		} catch (error) {
+			if (typeof error === "string") return { error: error }
+			else if (error instanceof Error) return { error: error.message }
+		}
+	} catch (error) {
+		return { error: "Network / address / internal error."}
+	}
+	return { error: "Unknown error." }
 }
 
-export const rx_user_request = async (params: DroidRXUserParameters): Promise<DroidRXUserResponse | undefined> => {
+export const rx_user_request = async (params: DroidRXUserParameters): Promise<DroidRXUserResponse | { error: string }> => {
 	const base_url = `https://v4rx.me/api/`
 	const endpoint = `get_user/?id=${params.uid}`
-	const response = await fetch(base_url + endpoint)
-	if (!response.ok) return undefined
-	if (response.status == 200)
-		return await response.json()
-	else
-		return undefined
+	try {
+
+		const response = await fetch(base_url + endpoint)
+		if (!response.ok) return { error: "Request failed." }
+		try {
+			let data = await response.json()
+			return data
+		} catch (error) {
+			if (typeof error === "string") return { error: error }
+			else if (error instanceof Error) return { error: error.message }
+		}
+	} catch (error) {
+		return { error: "Network / address / internal error." }
+	}
+	return { error: "Unknown error." }
 }
 
-export const rx_scores_request = async (params: DroidRXScoreParameters): Promise<DroidRXScoreResponse[] | undefined> => {
+export const rx_scores_request = async (params: DroidRXScoreParameters): Promise<DroidRXScoreResponse[] | { error: string }> => {
 	if (!params.limit) params.limit = 50
 	const base_url = `https://v4rx.me/api/`
 	const endpoint = `get_scores/?id=${params.uid}&?limit=${params.limit}`
-	const response = await fetch(base_url + endpoint)
-	if (!response.ok) return undefined
-	if (response.status == 200)
-		return await response.json()
-	else
-		return undefined
+	let response: Response
+	try {
+		response = await fetch(base_url + endpoint)
+		if (!response.ok) return { error: "Request failed" }
+		try {
+			let data = await response.json()
+			if (data.error) return { error: data.error }
+			return data
+
+		} catch (error) {
+			if (typeof error === "string") return { error: error }
+			else if (error instanceof Error) return { error: error.message }
+		}
+	} catch (error) {
+		return { error: "Network / address / internal error." }
+	}
+	return { error: "Unknown error." }
 }
 
-export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser | undefined> => {
-	if (!params.username && !params.uid && !params.response) return undefined
-	let profile: NewDroidResponse
+
+export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser | { error: string }> => {
+	if (!params.username && !params.uid && !params.response) return { error: "No parameters were provided." }
+	let profile: NewDroidResponse | { error: string }
 	if (!params.response)
 		profile = await miko.request({ uid: params.uid, username: params.username })
 	else
 		profile = params.response
 
-	if (profile.error) return undefined
-	let avatar_url: string
+	if ("error" in profile) return { error: profile.error }
 
+	let avatar_url: string
 	if ((await fetch(`https://osudroid.moe/user/avatar/${profile.UserId}.png`)).status != 404)
 		avatar_url = `https://osudroid.moe/user/avatar/${profile.UserId}.png`
 	else
@@ -83,18 +117,18 @@ export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser
 	return user
 }
 
-export const scores = async (params: DroidScoresParameters): Promise<DroidScoreExtended[] | undefined> => {
-	if (!params.username && !params.uid && !params.response) return undefined
-	let profile: NewDroidResponse
+export const scores = async (params: DroidScoresParameters): Promise<DroidScoreExtended[] | { error: string }> => {
+	if (!params.username && !params.uid && !params.response) return { error: "No parameters were provided." }
+	let profile: NewDroidResponse | { error: string }
 
 	if (!params.response)
 		profile = await miko.request({ uid: params.uid, username: params.username })
 	else
 		profile = params.response
 
-	if (profile.error) return undefined
+	if ("error" in profile) return { error: profile.error }
 	const scores = await droid.scores({ uid: profile.UserId, type: params.type })
-	if (!scores) return undefined
+	if ("error" in scores) return { error: scores.error }
 
 	const array: DroidScoreExtended[] = []
 	if (!scores.length) return array
@@ -292,10 +326,10 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 	let mods_str = mods.map(mod => mod.acronym)
 	return {
 		accuracy: accuracy.value(),
-		mods: { 
+		mods: {
 			acronyms: mods_str,
 			speed: details.mods.speed,
-		 },
+		},
 		rank: rank,
 		combo: details.combo || beatmap.maxCombo!,
 		performance: {
@@ -310,7 +344,7 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 			nGeki: 0,
 			nKatu: 0,
 		},
-		rating : {
+		rating: {
 			droid: droid_rating,
 			osu: osu_rating,
 		},
