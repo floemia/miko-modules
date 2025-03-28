@@ -1,7 +1,7 @@
 import { miko } from "../src";
 
 const test_ibancho = async () => {
-	const data = await miko.request({ uid: 177955 })
+	const data = await miko.request({ uid: 17732955 })
 	if ("error" in data) return console.log(data)
 
 	//const user = await miko.user({ response: data })
