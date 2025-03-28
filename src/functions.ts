@@ -328,6 +328,7 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 
 	let mods_str = mods.map(mod => mod.acronym)
 	return {
+		beatmap: beatmap,
 		accuracy: accuracy.value(),
 		mods: {
 			acronyms: mods_str,

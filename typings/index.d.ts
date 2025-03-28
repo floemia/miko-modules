@@ -155,6 +155,7 @@ interface DroidPerformanceCalculatorParameters {
 }
 
 interface DroidCalculatedData {
+	beatmap: MapInfo<true>;
 	performance: DroidScoreCalculatedData;
 	count: HitStatistics;
 	mods: DroidMods;
