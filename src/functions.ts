@@ -20,7 +20,6 @@ export const request = async (params: NewDroidRequestParameters): Promise<NewDro
 		const response = await fetch(base_url + endpoint)
 
 		if (!response.ok) {
-			console.log(response.status)
 			if (response.status === 404) return { error: "User not found." }
 			else return { error: "Request error." }
 		}
