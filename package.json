@@ -1,6 +1,6 @@
 {
 	"name": "miko-modules",
-	"version": "1.1.8",
+	"version": "1.2.0",
 	"description": "",
 	"author": {
 		"name": "floemia"
@@ -38,8 +38,8 @@
 		"typescript": "^5.8.2"
 	},
 	"dependencies": {
-		"@rian8337/osu-base": "^4.0.0-beta.51",
-		"@rian8337/osu-difficulty-calculator": "^4.0.0-beta.51",
+		"@rian8337/osu-base": "^4.0.0-beta.63",
+		"@rian8337/osu-difficulty-calculator": "^4.0.0-beta.63",
 		"dotenv": "^16.4.7",
 		"fast-average-color-node": "^3.1.0",
 		"mongoose": "^8.12.1",

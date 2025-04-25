@@ -1,8 +1,7 @@
 import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse, DroidPerformanceCalculatorParameters, DroidCalculatedData } from "../typings";
-import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder, } from "@rian8337/osu-base";
+import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder, ModCustomSpeed, } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
 import {
-	DifficultyCalculationOptions,
 	DroidDifficultyCalculator,
 	DroidPerformanceCalculator,
 	OsuDifficultyCalculator,
@@ -159,6 +158,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 		contributor: (profile.Contributor == 1),
 	}
 	for (const score of scores) {
+		if (score.mods.speed != 1) score.mods.acronyms.push("CS")
 		array.push({
 			id: new_scores[i].ScoreId,
 			filename: new_scores[i].Filename,
@@ -205,38 +205,29 @@ const calculate = async (score: DroidScoreExtended) => {
 	} catch {
 		score.color = "#dedede"
 	}
+	const mods = ModUtil.pcStringToMods(score.mods.acronyms.join())
+	if (mods.has(ModCustomSpeed)) mods.set(new ModCustomSpeed(score.mods.speed))
 
-	const mods = ModUtil.pcStringToMods(score.mods.acronyms.join());
-
-	const stats: DifficultyCalculationOptions = {
-		mods: mods,
-		customSpeedMultiplier: score.mods.speed
-	}
 	const accuracy = new Accuracy({
-		percent: score.accuracy,
 		nmiss: score.count.nMiss,
 		n300: score.count.n300,
 		n100: score.count.n100,
 		n50: score.count.n50,
 		nobjects: beatmapInfo.objects,
 	});
-	if (score.accuracy) {
-
-	}
 	const perf_stats: PerformanceCalculationOptions = {
 		combo: score.combo,
 		accPercent: accuracy,
 		miss: score.count.nMiss,
 	}
+	const droid_rating = new DroidDifficultyCalculator().calculate(beatmapInfo.beatmap, mods);
+	const osu_rating = new OsuDifficultyCalculator().calculate(beatmapInfo.beatmap, mods);
+	score.stars.droid = droid_rating.starRating
+	score.stars.osu = osu_rating.starRating
 
-	const droid_rating = new DroidDifficultyCalculator(beatmapInfo.beatmap).calculate(stats);
-	const osu_rating = new OsuDifficultyCalculator(beatmapInfo.beatmap).calculate(stats);
-	score.stars.droid = droid_rating.total
-	score.stars.osu = osu_rating.total
-
-	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
+	const osu_performance = new OsuPerformanceCalculator(osu_rating).calculate(perf_stats);
 	score.performance.pp = osu_performance.total
-	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
+	const droid_performance = new DroidPerformanceCalculator(droid_rating).calculate(perf_stats)
 	if (score.performance.dpp) {
 		if (droid_performance.total - score.performance.dpp > 0.1) {
 			score.performance.penalty = true
@@ -254,16 +245,16 @@ const calculate = async (score: DroidScoreExtended) => {
 		});
 		score.performance.fc = {
 			accuracy: accuracy_fc.value() * 100,
-			pp: -1,
-			dpp: -1,
+			pp: 0,
+			dpp: 0,
 		}
 		const perf_stats_fc: PerformanceCalculationOptions = {
 			accPercent: accuracy_fc,
 			miss: 0,
 		}
-		const osu_performance_fc = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats_fc);
+		const osu_performance_fc = new OsuPerformanceCalculator(osu_rating).calculate(perf_stats_fc);
 		score.performance.fc.pp = osu_performance_fc.total
-		const droid_performance_fc = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats_fc);
+		const droid_performance_fc = new DroidPerformanceCalculator(droid_rating).calculate(perf_stats_fc);
 		score.performance.fc.dpp = droid_performance_fc.total
 	}
 }
@@ -278,12 +269,8 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 	}
 	let beatmap = details.beatmap!
 
-	const mods = ModUtil.pcStringToMods(details.mods.acronyms.join());
-
-	const stats: DifficultyCalculationOptions = {
-		mods: mods,
-		customSpeedMultiplier: details.mods.speed
-	}
+	const mods = ModUtil.pcStringToMods(details.mods.acronyms.join())
+	if (mods.has(ModCustomSpeed)) mods.set(new ModCustomSpeed(details.mods.speed))
 	let acc = details.accuracy
 
 	const accuracy = new Accuracy({
@@ -321,12 +308,12 @@ const performance = async (details: DroidPerformanceCalculatorParameters): Promi
 		miss: details.count.nMiss,
 	}
 
-	const droid_rating = new DroidDifficultyCalculator(beatmap.beatmap!).calculate(stats);
-	const osu_rating = new OsuDifficultyCalculator(beatmap.beatmap!).calculate(stats);
-	const osu_performance = new OsuPerformanceCalculator(osu_rating.attributes).calculate(perf_stats);
-	const droid_performance = new DroidPerformanceCalculator(droid_rating.attributes).calculate(perf_stats)
+	const droid_rating = new DroidDifficultyCalculator().calculate(beatmap.beatmap!, mods);
+	const osu_rating = new OsuDifficultyCalculator().calculate(beatmap.beatmap!, mods);
+	const osu_performance = new OsuPerformanceCalculator(osu_rating).calculate(perf_stats);
+	const droid_performance = new DroidPerformanceCalculator(droid_rating).calculate(perf_stats)
 
-	let mods_str = mods.map(mod => mod.acronym)
+	let mods_str = mods.serializeMods().map(mod => mod.acronym)
 	return {
 		beatmap: beatmap,
 		accuracy: accuracy.value(),
