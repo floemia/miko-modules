@@ -187,7 +187,8 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 				dpp: new_scores[i].MapPP,
 			},
 			beatmap: undefined,
-			user: user
+			user: user,
+			server: "ibancho"
 		})
 		i++
 	}

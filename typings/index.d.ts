@@ -144,6 +144,7 @@ interface DroidScoreExtended {
 	performance: DroidScoreCalculatedData;
 	user?: NewDroidUser;
 	beatmap?: MapInfo;
+	server: "ibancho" | "relax"
 }
 
 interface DroidPerformanceCalculatorParameters {
