@@ -98,6 +98,7 @@ interface DroidRXBeatmap {
 }
 interface DroidRXUser {
 	error?: string;
+	country: string;
 	id: number;
 	name: string;
 	online: boolean;
