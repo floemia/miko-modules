@@ -8,7 +8,7 @@ export default defineConfig(({ watch = false }) => ({
 	sourcemap: true,
 	entry: {
 		index: "src/index.ts",
-		//test: "test/index.ts"
+		// test: "test/index.ts"
 	},
 	external: [],
 	format: ["cjs", "esm"],

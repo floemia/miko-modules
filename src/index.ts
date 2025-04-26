@@ -1,8 +1,7 @@
 import { miko } from "./functions";
-import type { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData } from "../typings/index"
+import type { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUser, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData, DroidRXScore, DroidRXBeatmap,  } from "../typings/index"
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUser, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData, DroidRXScore, DroidRXBeatmap }
 export { miko }
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData }
-
 export default {
 	miko,
 }

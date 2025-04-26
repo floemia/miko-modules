@@ -1,6 +1,9 @@
-import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXUserResponse, DroidRXScoreResponse, DroidPerformanceCalculatorParameters, DroidCalculatedData } from "../typings";
-import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder, ModCustomSpeed, } from "@rian8337/osu-base";
+// @ts-ignore
+import { DroidScoreExtended, NewDroidResponse, NewDroidRequestParameters, DroidScoresParameters, NewDroidUser, NewDroidUserParameters, DroidScoreListPaginationParameters, DroidRXUserParameters, DroidRXScoreParameters, DroidRXScoreResponse, DroidPerformanceCalculatorParameters, DroidCalculatedData, DroidRXUser, DroidRXScore } from "../typings";
+import { MapInfo, Accuracy, ModUtil, OsuAPIRequestBuilder, ModCustomSpeed } from "@rian8337/osu-base";
 import { getAverageColor } from "fast-average-color-node";
+import { DroidLegacyModConverter } from "@rian8337/osu-base";
+
 import {
 	DroidDifficultyCalculator,
 	DroidPerformanceCalculator,
@@ -11,7 +14,6 @@ import {
 import { droid } from "osu-droid-scraping";
 
 OsuAPIRequestBuilder.setAPIKey(process.env.OSU_API_KEY!)
-
 export const request = async (params: NewDroidRequestParameters): Promise<NewDroidResponse | { error: string }> => {
 	const base_url = `https://new.osudroid.moe/apitest`
 	const endpoint = params.uid ? `/profile-uid/${params.uid}` : `/profile-username/${params.username}`
@@ -30,55 +32,120 @@ export const request = async (params: NewDroidRequestParameters): Promise<NewDro
 			else if (error instanceof Error) return { error: error.message }
 		}
 	} catch (error) {
-		return { error: "Network / address / internal error."}
-	}
-	return { error: "Unknown error." }
-}
-
-export const rx_user_request = async (params: DroidRXUserParameters): Promise<DroidRXUserResponse | { error: string }> => {
-	const base_url = `https://v4rx.me/api/`
-	const endpoint = `get_user/?id=${params.uid}`
-	try {
-
-		const response = await fetch(base_url + endpoint)
-		if (!response.ok) return { error: "Request failed." }
-		try {
-			let data = await response.json()
-			return data
-		} catch (error) {
-			if (typeof error === "string") return { error: error }
-			else if (error instanceof Error) return { error: error.message }
-		}
-	} catch (error) {
 		return { error: "Network / address / internal error." }
 	}
 	return { error: "Unknown error." }
 }
 
-export const rx_scores_request = async (params: DroidRXScoreParameters): Promise<DroidRXScoreResponse[] | { error: string }> => {
-	if (!params.limit) params.limit = 50
-	const base_url = `https://v4rx.me/api/`
-	const endpoint = `get_scores/?id=${params.uid}&?limit=${params.limit}`
-	let response: Response
-	try {
-		response = await fetch(base_url + endpoint)
-		if (!response.ok) return { error: "Request failed" }
+export const rx = {
+	user: async (params: DroidRXUserParameters): Promise<DroidRXUser | { error: string }> => {
+		if (!params.username && !params.uid) return { error: "No parameters were provided." }
+		let url = `https://v4rx.me/api/get_user/`
+		if (params.uid) url += `?id=${params.uid}`
+		else url += `?name=${params.username}`
 		try {
-			let data = await response.json()
-			if (data.error) return { error: data.error }
-			return data
-
+			const response = await fetch(url)
+			if (!response.ok) {
+				if (response.status === 404) return { error: "User not found." }
+				else return { error: "Request error." }
+			}
+			try {
+				let data = await response.json()
+				return data
+			} catch (error) {
+				if (typeof error === "string") return { error: error }
+				else if (error instanceof Error) return { error: error.message }
+			}
 		} catch (error) {
-			if (typeof error === "string") return { error: error }
-			else if (error instanceof Error) return { error: error.message }
+			return { error: "Network / address / internal error." }
 		}
-	} catch (error) {
-		return { error: "Network / address / internal error." }
+		return { error: "Unknown error." }
+
+	},
+	scores: {
+		recent: async (params: DroidRXScoreParameters): Promise<DroidRXScore[] | { error: string }> => {
+			if (!params.uid && !params.username) return { error: "No parameters were provided." }
+			const rx_user = await miko.rx.user({ uid: params.uid, username: params.username })
+			if ("error" in rx_user) return { error: `${rx_user.error}` }
+			params.uid = rx_user.id
+			const base_url = `https://v4rx.me/api/`
+			const endpoint = `get_scores/?id=${params.uid}&limit=${params.limit || 50}`
+			let response: Response
+			try {
+				response = await fetch(base_url + endpoint)
+				if (!response.ok) return { error: "Request failed" }
+				try {
+					let data: DroidRXScoreResponse[] | { error: string } = await response.json()
+					if ("error" in data) return { error: data.error }
+					let scores: DroidRXScore[] = []
+					for (const score of data)
+						scores.push(parse_score_rx(score, rx_user))
+
+					return scores
+				} catch (error) {
+					if (typeof error === "string") return { error: error }
+					else if (error instanceof Error) return { error: error.message }
+				}
+			} catch (error) {
+				return { error: "Network / address / internal error." }
+			}
+			return { error: "Unknown error." }
+		},
+		top: async (params: DroidRXScoreParameters): Promise<DroidRXScore[] | { error: string }> => {
+			if (!params.uid && !params.username) return { error: "No parameters were provided." }
+			const rx_user = await miko.rx.user({ uid: params.uid, username: params.username })
+			if ("error" in rx_user) return { error: `${rx_user.error}` }
+			params.uid = rx_user.id
+			const base_url = `https://v4rx.me/api/`
+			const endpoint = `top_scores/?id=${params.uid}&limit=${params.limit || 50}`
+			let response: Response
+			try {
+				response = await fetch(base_url + endpoint)
+				if (!response.ok) return { error: "Request failed" }
+				try {
+					let data: DroidRXScoreResponse[] | { error: string } = await response.json()
+					if ("error" in data) return { error: data.error }
+					let scores: DroidRXScore[] = []
+					for (const score of data)
+						scores.push(parse_score_rx(score, rx_user))
+
+					return scores
+				} catch (error) {
+					if (typeof error === "string") return { error: error }
+					else if (error instanceof Error) return { error: error.message }
+				}
+			} catch (error) {
+				return { error: "Network / address / internal error." }
+			}
+			return { error: "Unknown error." }
+		}
 	}
-	return { error: "Unknown error." }
 }
 
-
+const parse_score_rx = (score: DroidRXScoreResponse, user?: DroidRXUser): DroidRXScore => {
+	return {
+		id: score.id,
+		accuracy: score.acc,
+		combo: score.combo,
+		played_date: new Date(score.date),
+		hash: score.maphash,
+		color: "#dedede",
+		mods: mods(score.mods),
+		rank: score.rank,
+		score: score.score,
+		count: {
+			n300: score.hit300,
+			nGeki: score.hitgeki,
+			nKatu: score.hitkatsu,
+			n100: score.hit100,
+			n50: score.hit50,
+			nMiss: score.hitmiss,
+		},
+		pp: score.pp,
+		beatmap: score.beatmap,
+		user: user,
+	}
+}
 export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser | { error: string }> => {
 	if (!params.username && !params.uid && !params.response) return { error: "No parameters were provided." }
 	let profile: NewDroidResponse | { error: string }
@@ -118,6 +185,7 @@ export const user = async (params: NewDroidUserParameters): Promise<NewDroidUser
 	}
 	return user
 }
+
 
 export const scores = async (params: DroidScoresParameters): Promise<DroidScoreExtended[] | { error: string }> => {
 	if (!params.username && !params.uid && !params.response) return { error: "No parameters were provided." }
@@ -194,7 +262,6 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 	}
 	return array
 }
-
 const calculate = async (score: DroidScoreExtended) => {
 	if (score.beatmap) return
 	const beatmapInfo = await MapInfo.getInformation(score.hash)
@@ -351,6 +418,7 @@ const score_pagination = async (params: DroidScoreListPaginationParameters): Pro
 	return params.scores.slice(start, end)
 }
 
+const mods = (droid_mods: string) => DroidLegacyModConverter.convert(droid_mods)
 
 
 
@@ -364,4 +432,4 @@ const score_pagination = async (params: DroidScoreListPaginationParameters): Pro
 // }
 
 
-export const miko = { user, scores, request, calculate, score_pagination, rx_scores_request, rx_user_request, performance }
+export const miko = { user, scores, request, calculate, score_pagination, rx, performance, mods }

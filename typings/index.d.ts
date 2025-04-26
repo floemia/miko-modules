@@ -1,4 +1,4 @@
-import { MapInfo } from "@rian8337/osu-base";
+import { MapInfo, ModMap } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes, OsuDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { DroidMods } from "osu-droid-scraping";
 
@@ -61,8 +61,42 @@ interface DroidRXScoreResponse {
 	score: number;
 	status: number;
 }
-
-interface DroidRXUserResponse {
+interface DroidRXScore {
+	id: number;
+	accuracy: number;
+	combo: number;
+	played_date: Date;
+	hash: string;
+	color: string;
+	mods: ModMap;
+	rank: string;
+	score: number;
+	count: HitStatistics;
+	pp: number;
+	beatmap: DroidRXBeatmap;
+	user?: DroidRXUser;
+}
+interface DroidRXBeatmap {
+	ar: number;
+	artist: string;
+	bpm: number;
+	creator: string;
+	cs: number;
+	hp: number;
+	id: number;
+	last_update: number;
+	max_combo: number;
+	md5: string;
+	mode: number;
+	od: number;
+	set_id: number;
+	star: number;
+	status: number;
+	title: string;
+	total_length: number;
+	version: string;
+}
+interface DroidRXUser {
 	error?: string;
 	id: number;
 	name: string;
@@ -204,11 +238,13 @@ interface NewDroidUserParameters {
 }
 
 interface DroidRXUserParameters {
-	uid: number;
+	uid?: number;
+	username?: string;
 }
 
 interface DroidRXScoreParameters {
-	uid: number;
+	uid?: number;
+	username?: string;
 	limit?: number;
 }
 
@@ -224,4 +260,4 @@ interface DroidScoreListPaginationParameters {
 	scores_per_page: number;
 }
 
-export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUserResponse, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData }
+export { NewDroidResponse, DroidScoreExtended, NewDroidResponseScore, HitStatistics, NewDroidUser, DroidScoreCalculatedData, DroidScoresParameters, NewDroidUserParameters, NewDroidRequestParameters, DroidCardParameters, DroidScoreListPaginationParameters, DroidRXScoreResponse, DroidRXUser, DroidRXUserParameters, DroidRXScoreParameters, DroidPerformanceCalculatorParameters, DroidCalculatedData, DroidRXScore, DroidRXBeatmap }
