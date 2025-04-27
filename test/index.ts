@@ -38,6 +38,6 @@ import { miko } from "../src";
 // }
 
 const test_rx = async () => {
-	console.log(await miko.rx.scores.recent({ uid: 42, limit: 2 }))
+	console.log(await miko.rx.user({ uid: 40 }))
 }
 test_rx()

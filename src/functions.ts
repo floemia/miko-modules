@@ -51,6 +51,14 @@ export const rx = {
 			}
 			try {
 				let data = await response.json()
+				try {
+					fetch(`https://v4rx.me/user/avatar/${data.id}.png`)
+					data.avatar_url = `https://v4rx.me/user/avatar/${data.id}.png`
+					data.color = (await getAverageColor(data.avatar_url)).hex
+				} catch {
+					data.avatar_url = `https://osudroid.moe/user/avatar/0.png`
+					data.color = "#dedede"
+				}
 				return data
 			} catch (error) {
 				if (typeof error === "string") return { error: error }
