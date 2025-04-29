@@ -175,7 +175,7 @@ interface DroidScoreExtended {
 	accuracy: number;
 	hash: string;
 	color: string;
-	mods: DroidMods
+	mods: ModMap;
 	count: HitStatistics;
 	stars: ScoreStars;
 	performance: DroidScoreCalculatedData;

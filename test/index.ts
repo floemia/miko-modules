@@ -1,16 +1,12 @@
-import { miko } from "../src";
+import { DroidScoreExtended, miko } from "../src";
 
-// const test_ibancho = async () => {
-// 	const data = await miko.request({ uid: 177955 })
-// 	if ("error" in data) return console.log(data)
-
-// 	//const user = await miko.user({ response: data })
-// 	//const recent = await miko.scores({ response: data, type: "recent" })
-// 	const recent = await miko.scores({ response: data, type: "top" })
-// 	if ("error" in recent) return
-
-// 	await miko.calculate(recent[0])
-// }
+const test_ibancho = async () => {
+	const data = await miko.request({ uid: 177955 })
+	if ("error" in data) return console.log(data)
+	const top = await miko.scores({ response: data, type: "top" }) as DroidScoreExtended[]
+	console.log(top[0].mods)
+}
+test_ibancho()
 
 // const test_rx = async () => {
 // 	const data = await miko.rx_scores_request({ uid: 27 })
@@ -36,8 +32,3 @@ import { miko } from "../src";
 // 	})
 // 	data
 // }
-
-const test_rx = async () => {
-	console.log(await miko.rx.user({ uid: 40 }))
-}
-test_rx()

@@ -212,6 +212,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 	if (!scores.length) return array
 	let i = 0
 	const new_scores = params.type == "top" ? profile.Top50Plays : profile.Last50Scores
+
 	const user: NewDroidUser = {
 		id: profile.UserId,
 		username: profile.Username,
@@ -234,7 +235,8 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 		contributor: (profile.Contributor == 1),
 	}
 	for (const score of scores) {
-		if (score.mods.speed != 1) score.mods.acronyms.push("CS")
+		let mods_map = ModUtil.pcStringToMods(score.mods.acronyms.join())
+		if (score.mods.speed != 1) mods_map.set(new ModCustomSpeed(score.mods.speed))
 		array.push({
 			id: new_scores[i].ScoreId,
 			filename: new_scores[i].Filename,
@@ -245,7 +247,7 @@ export const scores = async (params: DroidScoresParameters): Promise<DroidScoreE
 			played_date: new Date(new_scores[i].PlayedDate),
 			hash: score.hash,
 			color: "#dedede",
-			mods: score.mods,
+			mods: mods_map,
 			count: {
 				n300: new_scores[i].MapPerfect,
 				nGeki: new_scores[i].MapGeki,
@@ -281,8 +283,6 @@ const calculate = async (score: DroidScoreExtended) => {
 	} catch {
 		score.color = "#dedede"
 	}
-	const mods = ModUtil.pcStringToMods(score.mods.acronyms.join())
-	if (mods.has(ModCustomSpeed)) mods.set(new ModCustomSpeed(score.mods.speed))
 
 	const accuracy = new Accuracy({
 		nmiss: score.count.nMiss,
@@ -296,8 +296,8 @@ const calculate = async (score: DroidScoreExtended) => {
 		accPercent: accuracy,
 		miss: score.count.nMiss,
 	}
-	const droid_rating = new DroidDifficultyCalculator().calculate(beatmapInfo.beatmap, mods);
-	const osu_rating = new OsuDifficultyCalculator().calculate(beatmapInfo.beatmap, mods);
+	const droid_rating = new DroidDifficultyCalculator().calculate(beatmapInfo.beatmap, score.mods);
+	const osu_rating = new OsuDifficultyCalculator().calculate(beatmapInfo.beatmap, score.mods);
 	score.stars.droid = droid_rating.starRating
 	score.stars.osu = osu_rating.starRating
 
